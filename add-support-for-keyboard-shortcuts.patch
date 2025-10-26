@@ -1,0 +1,80 @@
+From 326f5c632beb5b106925b0152a846b2520bda055 Mon Sep 17 00:00:00 2001
+From: XXIV <13811862+thechampagne@users.noreply.github.com>
+Date: Sun, 26 Oct 2025 13:37:19 +0300
+Subject: [PATCH] add support for keyboard shortcuts
+
+---
+ src/boomer.nim | 22 ++++++++++++++++++++++
+ src/config.nim |  6 ++++++
+ 2 files changed, 28 insertions(+)
+
+diff --git a/src/boomer.nim b/src/boomer.nim
+index 40d2693..418aca7 100644
+--- a/src/boomer.nim
++++ b/src/boomer.nim
+@@ -517,6 +517,28 @@ proc main() =
+ 
+         of XK_f:
+           flashlight.isEnabled = not flashlight.isEnabled
++        of XK_h:
++          if (xev.xkey.state and ControlMask) > 0.uint32 and flashlight.isEnabled:
++            scrollDown()
++          else:
++            camera.position.x -= config.camera_speed
++        of XK_l:
++          if (xev.xkey.state and ControlMask) > 0.uint32 and flashlight.isEnabled:
++            scrollUp()
++          else:
++            camera.position.x += config.camera_speed
++        of XK_j:
++          if (xev.xkey.state and ControlMask) > 0.uint32:
++            camera.deltaScale += config.scrollSpeed
++            camera.scalePivot = mouse.curr
++          else:
++            camera.position.y += config.camera_speed
++        of XK_k:
++          if (xev.xkey.state and ControlMask) > 0.uint32:
++            camera.deltaScale -= config.scrollSpeed
++            camera.scalePivot = mouse.curr
++          else:
++            camera.position.y -= config.camera_speed
+         else:
+           discard
+ 
+diff --git a/src/config.nim b/src/config.nim
+index 26d92cb..ada4588 100644
+--- a/src/config.nim
++++ b/src/config.nim
+@@ -5,12 +5,15 @@ type Config* = object
+   scroll_speed*: float
+   drag_friction*: float
+   scale_friction*: float
++  camera_speed*: float
++  
+ 
+ const defaultConfig* = Config(
+   min_scale: 0.01,
+   scroll_speed: 1.5,
+   drag_friction: 6.0,
+   scale_friction: 4.0,
++  camera_speed: 20.0
+ )
+ 
+ proc loadConfig*(filePath: string): Config =
+@@ -31,6 +34,8 @@ proc loadConfig*(filePath: string): Config =
+       result.drag_friction = parseFloat(value)
+     of "scale_friction":
+       result.scale_friction = parseFloat(value)
++    of "camera_speed":
++      result.camera_speed = parseFloat(value)
+     else:
+       quit "Unknown config key `$#`" % [key]
+ 
+@@ -41,3 +46,4 @@ proc generateDefaultConfig*(filePath: string) =
+   f.write("scroll_speed = ", defaultConfig.scroll_speed, "\n")
+   f.write("drag_friction = ", defaultConfig.drag_friction, "\n")
+   f.write("scale_friction = ", defaultConfig.scale_friction, "\n")
++  f.write("camera_speed = ", defaultConfig.camera_speed, "\n")
+-- 
+2.34.1
+
