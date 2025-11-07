@@ -1,0 +1,4 @@
+* text=auto
+
+*.patch linguist-detectable=true
+*.patch linguist-language=diff
